@@ -1,0 +1,75 @@
+[sqlfluff]
+templater = jinja
+dialect = bigquery
+sql_file_exts = .sql, .bqsql
+max_line_length = 250
+output_line_length = 250
+large_file_skip_byte_limit = 0
+
+# 特定ルールを除外
+# ST06...カラムの指定順(計算などの複雑なものはSELECTの最後に指定するなど)　→ 分析データ作成クエリの場合は無視したい為除外
+# LT09...SELECTの対象が1つしかない場合は開業する/しない　→ 時と場合による為除外
+exclude_rules = ST06, LT09
+
+[sqlfluff:indentation]
+tab_space_size = 2
+indent_unit = tab_space_size
+#allow_implicit_indents = true
+
+# JOINをインデントする
+indented_joins = True
+# ONでインデントする
+indented_using_on = True
+# ONの中の条件式が複数ある場合にインデントを追加するか
+indented_on_contents = False
+
+[sqlfluff:rules]
+# 計算式カラムにエイリアスを強制 ( 例　 ×:sum(b) / ◯:sum(b) AS b_sum)
+allow_scalar = True
+# 修飾子に一貫性を強制 ( 例 ×:SELECT a, foo.b / ◯:SELECT hoge.a, foo.b)
+single_table_references = consistent
+
+[sqlfluff:layout.long_lines]
+# コメント行は長くても可とする。URLなどが入るため
+# 行の長さに関してコメント行は無視する
+ignore_comment_lines = True
+# 行の長さに関してコメント句は無視する
+ignore_comment_clauses = True
+
+[sqlfluff:layout:type:comma]
+# カラムを区切るカンマ位置は最後にする
+line_position = trailing
+
+[sqlfluff:rules:layout.select_targets]
+wildcard_policy = single
+
+[sqlfluff:rules:aliasing.column]
+# カラムに別名 (エイリアス) をつける際はASを入れる ( 例 ×:SELECT a alias_col / ◯:SELECT a AS alias_col)
+aliasing = explicit
+
+[sqlfluff:rules:capitalisation.identifiers]
+# カラム名は小文字
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.keywords]
+# SQLの予約後 (SELECTなど) は大文字
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.functions]
+# 関数名は大文字
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.literals]
+# リテラル値 (null・true・false) は大文字
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.types]
+# データ方は大文字
+extended_capitalisation_policy = upper
+
+[sqlfluff:rules:ambiguous.column_references]
+# GROUP BY や ORDER BY はカラム名を明示的に指定するか、数字のように明示的に指定しないかはどちらかに統一されていれば良い (混在していなければOK)
+group_by_and_order_by_style = consistent
+
+[sqlfluff:templater:jinja:context]
+run_id = scheduled
